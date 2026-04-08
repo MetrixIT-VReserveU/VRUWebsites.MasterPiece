@@ -1,0 +1,8 @@
+# Copyright (C) Skillworks IT - All Rights Reserved
+# Unauthorized copying of this file, via any medium is strictly prohibited
+# Proprietary and confidential
+# Written by Skillworks IT <contact@skillworksit.com>, Jan 2024
+
+RewriteEngine On
+RewriteCond %{SERVER_PORT} 80
+RewriteRule ^(.*)$ https://atmasterpiece.com/$1 [R,L]

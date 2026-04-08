@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: 
+Disallow: /cgi-bin/
+Allow: /
+Allow: /sitemap.xml
+Sitemap: https://atmasterpiece.com/sitemap.xml
