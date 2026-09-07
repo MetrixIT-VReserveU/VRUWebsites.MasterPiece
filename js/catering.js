@@ -164,9 +164,9 @@ function reservation() {
   catBtn.disabled = true;
   // const formatedDate = fdate.toISOString().split("T")[0] + " " + fdate.toTimeString().slice(0, 8);
   const reqBody = {
-    branch: 'BBQHABRID100003',
+    oCode: 'ONSSD',
+    eCode: 'MPB',
     bCode: 'MPBGCB',
-    bName: 'MPB Gachibowli',
     mobCc: '+91',
     name: fullName.value,
     mobileNum: phone.value,
@@ -180,30 +180,30 @@ function reservation() {
     occassion: occ.value === 'Other' ? otherOcc.value : occ.value,
     eInfo: comment.value
   }
-  // fetch(`http://localhost:3001/bbqh/cust/catering-srvc/create`, {
-  fetch('https://bbqh.skillworksit.com/custs/bbqh/cust/catering-srvc/create', {
-    cachce: false,
+  // fetch(`http://localhost:3502/vru/cust/catering-srvc/create`, {
+  fetch('https://vrub2bapi.vreserveu.com/vrub2b/vru/cust/catering-srvc/create', {
+    cache: 'no-cache',
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(reqBody)
-  }).then(response => {
-    response.json().then(rData => {
+  })
+    .then(response => response.json())
+    .then(rData => {
       if (rData.status == '200') {
         catForm.style.display = 'none';
         catConfirm.style.display = 'block';
-        catBtn.disabled = false;
       } else {
-        catBtn.disabled = false;
         failMsg.style.display = 'block';
         failMsg.innerText = 'Submission Failed.';
       }
-    }).catch(error => {
+      catBtn.disabled = false;
+    })
+    .catch(() => {
       catBtn.disabled = false;
       failMsg.style.display = 'block';
       failMsg.innerText = 'Server error. Please try again later.';
     });
-  }).catch(err => { });
   return true;
 }
