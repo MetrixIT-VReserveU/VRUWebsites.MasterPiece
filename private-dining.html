@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zxx">
+<html lang="en-IN">
 
 <head>
   <meta charset="UTF-8" />
@@ -57,7 +57,7 @@
   <!-- Audio Css File -->
   <link rel="stylesheet" href="css/plyr.css">
   <!-- Main Custom Css -->
-  <link href="css/custom.css?20250721" rel="stylesheet" media="screen">
+  <link href="css/custom.css?20260206" rel="stylesheet" media="screen">
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-HK73FG7276"></script>
@@ -284,6 +284,30 @@
                   </div>
                 </div>
                 <div class="col-md-12">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-floating mb-3">
+                        <input id="tDiners" class="form-control" type="number" placeholder="Total Diners" maxlength="5" />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-floating mb-3">
+                        <input id="nvDiners" class="form-control" type="number" placeholder="Non Veg Diners" maxlength="5" />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-floating mb-3">
+                        <input id="vDiners" class="form-control" type="number" placeholder="Veg Diners" maxlength="5" />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-floating mb-3">
+                        <input id="kDiners" class="form-control" type="number" placeholder="Kids Count" maxlength="5" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12">
                   <div class="form-floating">
                     <textarea class="form-control" id="message" name="text" placeholder="" maxlength="400" style="height: 100px"></textarea>
                     <label for="message">Message </label>
@@ -292,7 +316,7 @@
                 <div class="text-center text-danger" id="prvt-dining-errorMsg" style="display: none;"></div>
                 <div class="pq-about-btn mt-3">
                   <div class="text-center">
-                    <button type="button" id="prvt-dining-btn" onclick="return reservation();" class="button sisf-button sisf-layout--outlined"
+                    <button type="button" id="prvt-dining-btn" onclick="return privateDiningSubmit();" class="button sisf-button sisf-layout--outlined"
                       name="update_cart" value="Update cart">Make a Reservation</button>
                   </div>
                 </div>
@@ -533,8 +557,8 @@
   <!-- Main Custom js file -->
   <script src="js/function.js"></script>
   <!-- Table Booking js file -->
-  <script src="js/private-Dinning.js?20250613"></script>
-  <script src="js/common.js?20250613"></script>
+  <script src="js/private-Dinning.js?20260206"></script>
+  <script src="js/common.js?20260206"></script>
 
   <script>selectedDining('Lunch')</script>
   <script>displayTodayDate()</script>
