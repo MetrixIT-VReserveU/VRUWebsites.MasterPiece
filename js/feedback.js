@@ -56,7 +56,7 @@ function submitFeedback() {
   let googleReviewMsg = document.getElementById("google-review-msg");
   let loadingContainer = document.getElementById('loading-container');
 
-  let bbqhatoken = localStorage.getItem('bbqhatoken')
+  let vrucutoken = localStorage.getItem('vrucutoken')
 
   let feedbackErrorMsg = document.getElementById("feedback-errorMsg");
 
@@ -92,15 +92,16 @@ function submitFeedback() {
       name: name,
       mobileNum: mobileNumber,
       userID: mobCountryCode + mobileNumber,
-      branch: 'BBQHABRID100003',
+      oCode: 'ONSSD',
+      eCode: 'MPB',
       bCode: 'MPBGCB',
     }
-    // fetch('http://localhost:3001/bbqh/cust/user/feedback/create', {
-    fetch('https://bbqh.skillworksit.com/custs/bbqh/cust/user/feedback/create', {
-      cachce: false,
+    // fetch('http://localhost:3502/vru/cust/user/feedback/create', {
+    fetch('https://vrub2bapi.vreserveu.com/vrub2b/vru/cust/user/feedback/create', {
+      cache: 'no-cache',
       method: 'POST',
       headers: {
-        'bbqhatoken': bbqhatoken ? bbqhatoken : '',
+        'vrucutoken': vrucutoken ? vrucutoken : '',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(reqBody)
@@ -126,8 +127,8 @@ function submitFeedback() {
         }else{
           document.getElementById("fb-create-btn").disabled = false;
         }
-      }).catch(error => { });
-    }).catch(err => { });
+      }).catch(error => { console.error(error); });
+    }).catch(err => { console.error(err); });
   }
   return false
 }
