@@ -1,3 +1,7 @@
+const branches = [
+  {bCode: 'MPBGCB', blName: 'TG Hyd - MPB Gachibowli', plusCode: 'C9JF+89 Hyderabad, Telangana', coordinates: [17.430958170950202, 78.37343172665412]},
+  {bCode: 'MPBKDBSNL', blName: 'KA Blr - MPB Kadubeesanahalli', plusCode: 'WPQ2+V6 Bengaluru, Karnataka', coordinates: [12.939867733177106, 77.700833830908]}
+];
 const selectElement = document.getElementById('occation-type');
 const otherOccasionInput = document.getElementById('other-occation-type-fileld');
 selectElement.addEventListener('change', function () {
@@ -10,6 +14,7 @@ selectElement.addEventListener('change', function () {
 function displayTodayDate() {
   var now = new Date();
   var today = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+  let bCode = document.getElementById('branch-location').value;
 
   var selectedDate = new Date(today);
   var selectedDay = selectedDate.toLocaleString('en-US', { weekday: 'long' });
@@ -30,28 +35,29 @@ function displayTodayDate() {
     bookingDateEl.setAttribute('max', formattedMaxDate);
   }
 
-  specialDays();
-
-  let vrucutoken = localStorage.getItem('vrucutoken');
-  const requestBody = { bkFor: 'Booking', oCode: 'ONSSD', eCode: 'MPB', bCode: 'MPBGCB' };
-  // fetch(`http://localhost:3502/vru/custs/table/blckd/dates/list`, {
+  if(bCode) {
+    specialDays();
+    let vrucutoken = localStorage.getItem('vrucutoken');
+    const requestBody = { bkFor: 'Booking', oCode: 'ONSSD', eCode: 'MPB', bCode: bCode };
+    // fetch(`http://localhost:3502/vru/custs/table/blckd/dates/list`, {
     fetch(`https://vrub2bapi.vreserveu.com/vrub2b/vru/custs/table/blckd/dates/list`, {
-    cache: 'no-cache',
-    method: 'POST',
-    headers: {
-      'vrucutoken': vrucutoken ? vrucutoken : '',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(requestBody)
-  }).then(response => {
-    response.json().then(rData => {
-      if (rData.status == '200') {
-        localStorage.setItem('blockedDatesList', JSON.stringify(rData.resData.result));
-      } else {
-        localStorage.setItem('blockedDatesList', JSON.stringify([]));
-      }
-    }).catch(error => { console.error(error); });
-  }).catch(err => { console.error(err); });
+      cache: 'no-cache',
+      method: 'POST',
+      headers: {
+        'vrucutoken': vrucutoken ? vrucutoken : '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody)
+    }).then(response => {
+      response.json().then(rData => {
+        if (rData.status == '200') {
+          localStorage.setItem('blockedDatesList', JSON.stringify(rData.resData.result));
+        } else {
+          localStorage.setItem('blockedDatesList', JSON.stringify([]));
+        }
+      }).catch(error => { console.error(error); });
+    }).catch(err => { console.error(err); });
+  }
 }
 function dateChange() {
   var dateInput = document.getElementById('booking-date');
@@ -68,14 +74,25 @@ function booktable() {
   let otherOccType = document.getElementById("other-occation-type");
   let message = document.getElementById("booking-message").value;
   let errorMessage = document.getElementById('error-message');
+  let blErrMsg = document.getElementById('branch-location-error-message');
   let bkngDiningType = document.getElementById('bkng-dining-text').textContent;
   let blockedDatesList = localStorage.getItem('blockedDatesList');
   let blckedDates = JSON.parse(blockedDatesList);
+  let bCode = document.getElementById('branch-location').value;
   // let branchesData = document.getElementById('selected-branch');
   // let bList = localStorage.getItem('branches');
   // let branchesList = JSON.parse(bList);
-  // let bData = branchesData.value != '' ? branchesList.find(item => item.bCode == branchesData.value) : {};
+  // let bData = bCode != '' ? branches.find(item => item.bCode == bCode) : {};
 
+  document.getElementById("contact-person").addEventListener("input", function () {
+    errorMessage.textContent = "";
+    errorMessage.style.display = "none";
+  });
+  document.getElementById("branch-location").addEventListener('change', function () {
+    displayTodayDate();
+    blErrMsg.textContent = "";
+    blErrMsg.style.display = "none";
+  });
   document.getElementById("booking-date").addEventListener("input", function () {
     errorMessage.textContent = "";
     errorMessage.style.display = "none";
@@ -88,10 +105,6 @@ function booktable() {
   //   errorMessage.textContent = "";
   //   errorMessage.style.display = "none";
   // });
-  document.getElementById("contact-person").addEventListener("input", function () {
-    errorMessage.textContent = "";
-    errorMessage.style.display = "none";
-  });
   document.getElementById("occation-type").addEventListener("input", function () {
     errorMessage.textContent = "";
     errorMessage.style.display = "none";
@@ -100,9 +113,15 @@ function booktable() {
     errorMessage.textContent = "";
     errorMessage.style.display = "none";
   });
-  let blockedDates = blckedDates && blckedDates.length > 0 && blckedDates.find(item => item.blckdDt === bDate && item.blckdSlotType === bkngDiningType && item.bCode == 'MPBGCB');
-  let blDates = blckedDates && blckedDates.length > 0 ? blckedDates.filter(item => item.blckdDt == bDate && item.bCode == 'MPBGCB') : [];
-  if (!bDate) {
+  let blockedDates = blckedDates && blckedDates.length > 0 && blckedDates.find(item => item.blckdDt === bDate && item.blckdSlotType === bkngDiningType && item.bCode == bCode);
+  let blDates = blckedDates && blckedDates.length > 0 ? blckedDates.filter(item => item.blckdDt == bDate && item.bCode == bCode) : [];
+  if (!cName) {
+    errorMessage.textContent = "Name is required";
+    errorMessage.style.display = "block";
+  } else if(!bCode) {
+    blErrMsg.textContent = "Branch - Location is required";
+    blErrMsg.style.display = "block";
+  } else if (!bDate) {
     errorMessage.textContent = "Date is required";
     errorMessage.style.display = "block";
   } else if (bDate < '2024-03-08') {
@@ -117,9 +136,6 @@ function booktable() {
   } else if (!bTime) {
     errorMessage.textContent = "Time is required";
     errorMessage.style.display = "block";
-  } else if (!cName) {
-    errorMessage.textContent = "Name is required";
-    errorMessage.style.display = "block";
   } else if (!occType) {
     errorMessage.textContent = "Occasion type is required";
     errorMessage.style.display = "block";
@@ -128,6 +144,17 @@ function booktable() {
     errorMessage.style.display = "block";
   } else {
     $(this).scrollTop(0);
+    const selectElement = document.getElementById("branch-location");
+    const selectedText = selectElement.options[selectElement.selectedIndex].text;
+    const date = new Date(bDate);
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    const formattedDate = date.toLocaleDateString('en-GB', options);
+
+    document.getElementById("branch-location-datetime").innerHTML = `<br /><div class='sisf-m-text'>
+                  <p class='text-black'>Branch Location: <strong>${selectedText}</strong><br />
+                  Reservation Date: <b>${formattedDate} ${bkngDiningType == 'Lunch' ? bTime : dinnerbTime}</b></p>
+                </div>`
+    document.getElementById("branch-location-datetime").style.display = "block";
     document.getElementById("mobile-number-field").style.display = "block";
     document.getElementById("booking-date-filed").style.display = "none";
     document.getElementById("checkin-time-filed").style.display = "none";
@@ -149,6 +176,7 @@ function sendotp() {
   let mobileNumber = document.getElementById("mobile-number").value;
   let mobileNumberError = document.getElementById("mobile-number-error");
   // let countryMobCode = document.getElementById("country-mob-code").value;
+  let bCode = document.getElementById('branch-location').value;
 
   document.getElementById("mobile-number").addEventListener("input", function () {
     mobileNumberError.textContent = "";
@@ -167,7 +195,7 @@ function sendotp() {
     let data = JSON.parse(prevData);
     const mobData = { ...data, mobileNum: mobileNumber, userID: '+91' + mobileNumber }
     localStorage.setItem('userDetails', JSON.stringify(mobData))
-    const requestBody = { name: data.cName, mobileNum: mobileNumber, userID: '+91' + mobileNumber, oCode: 'ONSSD', eCode: 'MPB', bCode: 'MPBGCB' };
+    const requestBody = { name: data.cName, mobileNum: mobileNumber, userID: '+91' + mobileNumber, oCode: 'ONSSD', eCode: 'MPB', bCode: bCode };
     // fetch('http://localhost:3502/vru/cust/user/login/send/otp', {
     fetch('https://vrub2bapi.vreserveu.com/vrub2b/vru/cust/user/login/send/otp', {
       cache: 'no-cache',
@@ -314,6 +342,7 @@ function verifyotp() {
   const errorMsg = document.getElementById("mobile-number-error");
   const otpToken = localStorage.getItem('otpToken');
   const verifyBtn = document.getElementById("verify-otp-btn");
+  let bCode = document.getElementById('branch-location').value;
 
   if (otpNumber.trim().length === 0) {
     errorMsg.textContent = "Please enter OTP";
@@ -339,7 +368,7 @@ function verifyotp() {
     otpNum: otpNumber,
     oCode: 'ONSSD',
     eCode: 'MPB',
-    bCode: 'MPBGCB'
+    bCode: bCode
   };
 
   // fetch('http://localhost:3502/vru/cust/user/login/verify/otp', {
@@ -389,13 +418,14 @@ function verifyotp() {
 }
 
 function initialPrices(vrucutoken) {
+  let bCode = document.getElementById('branch-location').value;
   // let branchesData = document.getElementById('selected-branch');
   // let bList = localStorage.getItem('branches');
   // let branchesList = JSON.parse(bList);
   // let bData = branchesList.find(item => item.bCode == branchesData.value);
   let dateInput = localStorage.getItem('selectedDay');
   let selectedDay = JSON.parse(dateInput);
-  const payLoad = { oCode: 'ONSSD', eCode: 'MPB', bCode: 'MPBGCB', day: selectedDay }
+  const payLoad = { oCode: 'ONSSD', eCode: 'MPB', bCode, day: selectedDay };
   // fetch('http://localhost:3502/vru/restaurant/info', {
     fetch('https://vrub2bapi.vreserveu.com/vrub2b/vru/restaurant/info', {
     cache: 'no-cache',
@@ -563,6 +593,9 @@ function reservetable() {
   let rtableErrorMsg = document.getElementById("rTable-error-msg");
   let reserveTableField = document.getElementById("reserve-table-fields");
   let bkngConfirmField = document.getElementById("booking-confirm-field");
+  let bbLoc = document.getElementById("bkng-branch-location");
+  const selectBlElement = document.getElementById("branch-location");
+  const bLocText = selectBlElement.options[selectBlElement.selectedIndex].text;
   let bookingId = document.getElementById("booking-id");
   let bookingDate = document.getElementById("bkng-date");
 
@@ -572,6 +605,9 @@ function reservetable() {
   let vrucutoken = localStorage.getItem('vrucutoken');
   let appliedOffer = localStorage.getItem('appliedOffer');
   let selectedOffer = appliedOffer ? JSON.parse(appliedOffer) : null;
+
+  let bCode = document.getElementById('branch-location').value;
+  let bData = branches.find(item => item.bCode == bCode);
 
   let pda = selectedOffer && selectedOffer.dp
     ? Math.round((selectedOffer.dp / 100) * totalAmount)
@@ -638,17 +674,17 @@ function reservetable() {
     dAmount: dAmount,
 
     bookType: 'Website',
-    blName: "TG Hyd - MPB Gachibowli",
-    plusCode: { plusCode: 'C9JF+89 Hyderabad, Telangana' },
+    blName: bData?.blName || "TG Hyd - MPB Gachibowli",
+    plusCode: { plusCode: bData?.plusCode || 'C9JF+89 Hyderabad, Telangana' },
     geocoordinates: {
       type: 'Point',
-      coordinates: [17.430958170950202, 78.37343172665412]
+      coordinates: bData?.coordinates?.length ? bData.coordinates : [17.430958170950202, 78.37343172665412]
     },
 
     rFor: data.bkngDiningType,
     oCode: 'ONSSD',
     eCode: 'MPB',
-    bCode: 'MPBGCB'
+    bCode: bCode
   };
     // fetch('http://localhost:3502/vru/cust/table/booking/create', {
     fetch('https://vrub2bapi.vreserveu.com/vrub2b/vru/cust/table/booking/create', {
@@ -670,6 +706,7 @@ function reservetable() {
         reserveTableField.style.display = 'none';
         bkngConfirmField.style.display = 'block';
 
+        bbLoc.textContent = "Branch Location: " + bLocText;
         bookingId.textContent = "Booking ID: " + rData.resData.result.bookingId;
         bookingDate.textContent =
           "Reserved Date: " + formattedDate + "  " + rData.resData.result.bTm;
@@ -696,10 +733,11 @@ function applyCoupon() {
   // let bList = localStorage.getItem('branches');
   // let branchesList = JSON.parse(bList);
   // let bData = branchesList.find(item => item.bCode == branchesData.value);
+  let bCode = document.getElementById('branch-location').value;
   const payLoad = {
     oCode: 'ONSSD',
     eCode: 'MPB',
-    bCode: 'MPBGCB'
+    bCode: bCode
   };
   $('#coupon-model').modal('show');
 
@@ -715,8 +753,9 @@ function applyCoupon() {
   }).then(response => {
     response.json().then(rData => {
       if (rData.status == '200') {
-        localStorage.setItem('offers', JSON.stringify(rData.resData.result));
-        offersData(rData.resData.result, total)
+        const offers = rData.resData.result.find(item => item.bCode === bCode);
+        localStorage.setItem('offers', JSON.stringify(offers));
+        offersData(offers, total)
       }
     }).catch(error => { console.error(error); });
   }).catch(err => { console.error(err); });
@@ -898,9 +937,10 @@ function callSpecialDaysAPI(date) {
   const selectedDate = new Date(date);
   const selectedDay = selectedDate.toLocaleString('en-US', { weekday: 'long' });
   localStorage.setItem('selectedDay', JSON.stringify(selectedDay));
+  let bCode = document.getElementById('branch-location').value;
 
   const vrucutoken = localStorage.getItem('vrucutoken');
-  const body = { oCode: "ONSSD", eCode: "MPB", bCode: "MPBGCB" };
+  const body = { oCode: "ONSSD", eCode: "MPB", bCode: bCode };
 
   // fetch('http://localhost:3502/vru/cust/spcl/day/pricings/list', {
   fetch('https://vrub2bapi.vreserveu.com/vrub2b/vru/cust/spcl/day/pricings/list', {
@@ -911,20 +951,17 @@ function callSpecialDaysAPI(date) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(body)
-  })
-    .then(res => res.json())
-    .then(rData => {
-      if (rData.status == '200') {
-        const rd = rData.resData?.result;
-        const dd = rd.find(item => {
-          const startDate = new Date(item.sdStDt.split('T')[0]);
-          const endDate = new Date(item.sdEtDt.split('T')[0]);
-          return selectedDate >= startDate && selectedDate <= endDate;
-        }) || {}; 
-        localStorage.setItem('specialDays', JSON.stringify(dd || {}));
-      } else {
-        localStorage.removeItem('specialDays');
-      }
-    })
-    .catch(console.error);
+  }).then(res => res.json()).then(rData => {
+    if (rData.status == '200') {
+      const rd = rData.resData?.result;
+      const dd = rd.find(item => {
+        const startDate = new Date(item.sdStDt.split('T')[0]);
+        const endDate = new Date(item.sdEtDt.split('T')[0]);
+        return selectedDate >= startDate && selectedDate <= endDate;
+      }) || {}; 
+      localStorage.setItem('specialDays', JSON.stringify(dd || {}));
+    } else {
+      localStorage.removeItem('specialDays');
+    }
+  }).catch(console.error);
 }
