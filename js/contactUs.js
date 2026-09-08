@@ -5,7 +5,7 @@ function contactUs() {
     let email = document.getElementById('email').value;
     let notes = document.getElementById('message').value;
     let errorMessage = document.getElementById('errorMessage');
-    let bbqhatoken = localStorage.getItem('bbqhatoken');
+    let vrucutoken = localStorage.getItem('vrucutoken');
   
     document.getElementById("name").addEventListener("input", function () {
       errorMessage.textContent = "";
@@ -38,20 +38,21 @@ function contactUs() {
       errorMessage.textContent = 'Message is required';
     } else {
       const reqBody = {
-        branch: 'BBQHABRID100003',
-        branchCode: 'MPBGCB',    
+        oCode: 'ONSSD',
+        eCode: 'MPB',
+        bCode: 'MPBGCB',
         name,
         mobileNum,
         userID: mobileNum,
         emID: email,
         message: notes,
-      }
-      // fetch('http://localhost:3001/bbqh/cust/contact/create', {
-      fetch('https://bbqh.skillworksit.com/custs/bbqh/cust/contact/create', {
-        cachce: false,
+      };
+      // fetch('http://localhost:3502/vru/cust/contact/create', {
+      fetch('https://vrub2bapi.vreserveu.com/vrub2b/vru/cust/contact/create', {
+        cache: 'no-cache',
         method: 'POST',
         headers: {
-          'bbqhatoken': bbqhatoken ? bbqhatoken : '',
+          'vrucutoken': vrucutoken ? vrucutoken : '',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(reqBody)
@@ -61,9 +62,13 @@ function contactUs() {
             document.getElementById('contact-form').style.display = 'none';
             document.getElementById('contactus-success-container').style.display = 'block';
             document.getElementById('contactus-success-msg').textContent = 'Thank you for Contacting Us. We will get back you soon';
+            document.getElementById("contact-us-btn").disabled = false;
+          } else {
+            document.getElementById("contact-us-btn").disabled = false;
           }
-        }).catch(error => { });
-      }).catch(err => { });
+        }).catch(error => { console.error(error); });
+      }).catch(err => { console.error(err); });
+  
     }
-    return false
+    return false;
   }

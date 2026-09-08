@@ -34,7 +34,7 @@ function selectedDining(type) {
   selectedDining.textContent = type;
 }
 
-function reservation() {
+function privateDiningSubmit() {
   let pName = document.getElementById('name').value;
   let pMobileNumber = document.getElementById('mobileNumber').value;
   let email = document.getElementById('email').value;
@@ -42,6 +42,10 @@ function reservation() {
   let errorMessage = document.getElementById('prvt-dining-errorMsg');
   let Occation = document.getElementById('occation').value;
   let pDate = document.getElementById('date-pick').value;
+  let tdCount = document.getElementById('tDiners').value;
+  let nvCount = document.getElementById('nvDiners').value;
+  let vCount = document.getElementById('vDiners').value;
+  let kCount = document.getElementById('kDiners').value;
   let pDiningMsg = document.getElementById('message').value;
   let pHoursTime = document.getElementById('private-dining-hours').value;
   let pMinsTime = document.getElementById('private-dining-minutes').value;
@@ -62,6 +66,22 @@ function reservation() {
     errorMessage.style.display = "none";
   });
 
+  document.getElementById("tDiners").addEventListener("input", function () {
+    errorMessage.textContent = "";
+    errorMessage.style.display = "none";
+  });
+  document.getElementById("nvDiners").addEventListener("input", function () {
+    errorMessage.textContent = "";
+    errorMessage.style.display = "none";
+  });
+  document.getElementById("vDiners").addEventListener("input", function () {
+    errorMessage.textContent = "";
+    errorMessage.style.display = "none";
+  });
+  document.getElementById("kDiners").addEventListener("input", function () {
+    errorMessage.textContent = "";
+    errorMessage.style.display = "none";
+  });
   document.getElementById("private-dining-time").addEventListener("input", function () {
     Event.preventDefault();
     errorMessage.textContent = "";
@@ -88,7 +108,12 @@ function reservation() {
     pName.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
   });
   let blockedDates = blckedDates && blckedDates.length > 0 ? blckedDates.find(item => item.blckdDt == pDate && item.blckdSlotType == selectedDining && item.bCode == 'MPBGCB'):{};
-  let blDates = blckedDates ? blckedDates.length > 0 && blckedDates.filter(item => item.blckdDt == pDate && item.bCode == 'MPBGCB') : [];  
+  let blDates = blckedDates ? blckedDates.length > 0 && blckedDates.filter(item => item.blckdDt == pDate && item.bCode == 'MPBGCB') : [];
+  let tc = parseInt(tdCount) ? parseInt(tdCount) : 0;
+  let nc = parseInt(nvCount) ? parseInt(nvCount) : 0;
+  let vc = parseInt(vCount) ? parseInt(vCount) : 0;
+  let kc = parseInt(kCount) ? parseInt(kCount) : 0;
+  const ac = nc + vc + kc;    
   if (!pName) {
     errorMessage.textContent = "Name is required";
     errorMessage.style.display = "block";
@@ -113,6 +138,12 @@ function reservation() {
   } else if(pDate <= '2024-03-10'){
     errorMessage.textContent = "Sorry we are fully booked for the selected date, you can book for next day";
     errorMessage.style.display = "block";
+  } else if (tc == 0) {
+    errorMessage.textContent = "Total Diners is required";
+    errorMessage.style.display = "block";
+  } else if (tc !== 0 && (tc !== ac)) {
+    errorMessage.textContent = "Veg, Non-Veg and Kids count should be equal to Total Diners";
+    errorMessage.style.display = "block";
   } else if (!pDiningMsg) {
     errorMessage.textContent = "Message is required";
     errorMessage.style.display = "block";
@@ -122,7 +153,6 @@ function reservation() {
     const date = new Date(pDate);
     const formatedDate = date.toISOString().split("T")[0] + " " + date.toTimeString().slice(0, 8);
     const reqBody = {
-      branch: 'BBQHABRID100003',
       name: pName,
       mobileNum: pMobileNumber,
       emID: email,  
@@ -134,18 +164,24 @@ function reservation() {
       bDtStr: formatedDate,
       bDtTm: new Date(pDate),
       userID: '+91' + pMobileNumber,
-      bCode: 'MPBGCB',
       brLocation: "TG Hyd - MPB Gachibowli",
       plusCode: "+91",
       geocoordinates: {
         type: 'Point',
         coordinates: [17.465390065251178, 78.36823869624536]
       },
+      tDinersCount: tc || 0,
+      nonVegCount: nc || 0,
+      vegCount: vc || 0,
+      kidsCount: kc || 0,
+      oCode: 'ONSSD',
+      eCode: 'MPB',
+      bCode: 'MPBGCB',
     }
 
-    // fetch('http://localhost:3001/bbqh/cust/private/dining/create', {
-    fetch('https://bbqh.skillworksit.com/custs/bbqh/cust/private/dining/create', {
-      cachce: false,
+    // fetch('http://localhost:3502/vru/cust/private/dining/create', {
+    fetch('https://vrub2bapi.vreserveu.com/vrub2b/vru/cust/private/dining/create', {
+      cache: 'no-cache',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -171,15 +207,14 @@ function reservation() {
   return false;
 }
 function displayPdDate() {
-  let bbqhatoken = localStorage.getItem('bbqhatoken');
-  let bid = 'MPBGCB';
-  const requestBody = {bkFor: 'Private Dining'}
-  // fetch(`http://localhost:3001/bbqh/custs/table/blckd/dates/list/${bid}`, {
-  fetch(`https://bbqh.skillworksit.com/custs/bbqh/custs/table/blckd/dates/list/${bid}`, {
-    cachce: false,
+  let vrucutoken = localStorage.getItem('vrucutoken');
+  const requestBody = {bkFor: 'Private Dining', oCode: 'ONSSD', eCode: 'MPB', bCode: 'MPBGCB'}
+  // fetch(`http://localhost:3502/vru/custs/table/blckd/dates/list`, {
+  fetch(`https://vrub2bapi.vreserveu.com/vrub2b/vru/custs/table/blckd/dates/list`, {
+    cache: 'no-cache',
     method: 'POST',
     headers: {
-      'bbqhatoken': bbqhatoken ? bbqhatoken : '',
+      'vrucutoken': vrucutoken ? vrucutoken : '',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(requestBody)
@@ -190,6 +225,6 @@ function displayPdDate() {
       } else{
         localStorage.setItem('pdblockedDatesList', JSON.stringify([]));  
       }
-    }).catch(error => { });
-  }).catch(err => { });
+    }).catch(error => { console.error(error); });
+  }).catch(err => { console.error(err); });
 }
