@@ -11,6 +11,13 @@ selectElement.addEventListener('change', function () {
     otherOccasionInput.style.display = 'none';
   }
 });
+
+let blErrMsg = document.getElementById('branch-location-error-message');
+document.getElementById("branch-location").addEventListener('change', function () {
+  displayTodayDate();
+  blErrMsg.textContent = "";
+  blErrMsg.style.display = "none";
+});
 function displayTodayDate() {
   var now = new Date();
   var today = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split('T')[0];
@@ -74,7 +81,7 @@ function booktable() {
   let otherOccType = document.getElementById("other-occation-type");
   let message = document.getElementById("booking-message").value;
   let errorMessage = document.getElementById('error-message');
-  let blErrMsg = document.getElementById('branch-location-error-message');
+  let bkdErrMsg = document.getElementById('bkdate-error-message');
   let bkngDiningType = document.getElementById('bkng-dining-text').textContent;
   let blockedDatesList = localStorage.getItem('blockedDatesList');
   let blckedDates = JSON.parse(blockedDatesList);
@@ -88,14 +95,9 @@ function booktable() {
     errorMessage.textContent = "";
     errorMessage.style.display = "none";
   });
-  document.getElementById("branch-location").addEventListener('change', function () {
-    displayTodayDate();
-    blErrMsg.textContent = "";
-    blErrMsg.style.display = "none";
-  });
   document.getElementById("booking-date").addEventListener("input", function () {
-    errorMessage.textContent = "";
-    errorMessage.style.display = "none";
+    bkdErrMsg.textContent = "";
+    bkdErrMsg.style.display = "none";
   });
   document.getElementById("checkin-time").addEventListener("input", function () {
     errorMessage.textContent = "";
@@ -122,20 +124,17 @@ function booktable() {
     blErrMsg.textContent = "Branch - Location is required";
     blErrMsg.style.display = "block";
   } else if (!bDate) {
-    errorMessage.textContent = "Date is required";
-    errorMessage.style.display = "block";
-  } else if (bDate < '2024-03-08') {
-    errorMessage.textContent = "Sorry we are fully booked for the selected date, you can book for next day";
-    errorMessage.style.display = "block";
+    bkdErrMsg.textContent = "Date is required";
+    bkdErrMsg.style.display = "block";
   } else if (bDate && blDates && blDates.length > 0 && blDates.length == 2) {
-    errorMessage.textContent = `Sorry we are fully booked for the selected date. Please choose different date.`;
-    errorMessage.style.display = "block";
+    bkdErrMsg.textContent = `Sorry we are fully booked for the selected date. Please choose different date.`;
+    bkdErrMsg.style.display = "block";
   } else if (bDate && blockedDates && blockedDates._id) {
-    errorMessage.textContent = `Sorry we are fully booked for ${bkngDiningType} you can book for ${bkngDiningType == 'Lunch' ? 'Dinner' : 'Lunch'} or next day`;
-    errorMessage.style.display = "block";
+    bkdErrMsg.textContent = `Sorry we are fully booked for ${bkngDiningType} you can book for ${bkngDiningType == 'Lunch' ? 'Dinner' : 'Lunch'} or next day`;
+    bkdErrMsg.style.display = "block";
   } else if (!bTime) {
-    errorMessage.textContent = "Time is required";
-    errorMessage.style.display = "block";
+    bkdErrMsg.textContent = "Time is required";
+    bkdErrMsg.style.display = "block";
   } else if (!occType) {
     errorMessage.textContent = "Occasion type is required";
     errorMessage.style.display = "block";
@@ -310,9 +309,7 @@ function otpTimer() {
   }
   function resendOTP() {
     document.getElementById('resend-button').disabled = true;
-    sendotp()
-    let errorMessage = document.getElementById('error-message');
-    errorMessage.textContent = '';
+    sendotp();
     document.getElementById('mobile-number-error').textContent = '';
   }
   document.getElementById("resend-button").addEventListener("click", resendOTP);
@@ -906,21 +903,18 @@ function selecteBkngdDining(type) {
   let dinnerCheckinTimeField = document.getElementById('dinner-checkin-time-field');
   let lunchCheckinTime = document.getElementById('checkin-time');
   let dinnerCheckinTime = document.getElementById('dinner-checkin-time');
-  let errorMessage = document.getElementById('error-message');
   if (type == 'Lunch') {
     selectedDiningLunch.classList.add('selected');
     selectedDiningDinner.classList.remove('selected');
     lunchCheckinTimeField.style.display = 'block';
     dinnerCheckinTimeField.style.display = 'none';
     lunchCheckinTime.value = "12:00 PM";
-    errorMessage.textContent = ''
   } else {
     selectedDiningDinner.classList.add('selected');
     selectedDiningLunch.classList.remove('selected');
     lunchCheckinTimeField.style.display = 'none';
     dinnerCheckinTimeField.style.display = 'block';
     dinnerCheckinTime.value = "07:00 PM"
-    errorMessage.textContent = ''
   }
   selectedDining.textContent = type;
 }
